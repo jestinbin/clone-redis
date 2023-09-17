@@ -1,0 +1,28 @@
+{
+  "name": "clone-redis",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "type": "module",
+  "directories": {
+    "example": "examples"
+  },
+  "scripts": {
+    "test": "NODE_OPTIONS=--experimental-vm-modules npx jest",
+    "start:server": "node ./bin/server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/jestinbin/clone-redis.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/jestinbin/clone-redis/issues"
+  },
+  "homepage": "https://github.com/jestinbin/clone-redis#readme",
+  "devDependencies": {
+    "jest": "^29.7.0"
+  }
+}
