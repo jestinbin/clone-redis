@@ -8,7 +8,7 @@
     "example": "examples"
   },
   "scripts": {
-    "test": "NODE_OPTIONS=--experimental-vm-modules npx jest",
+    "test": "ENV=test NODE_OPTIONS=--experimental-vm-modules npx jest",
     "start:server": "node ./bin/server.js"
   },
   "repository": {
@@ -24,5 +24,8 @@
   "homepage": "https://github.com/jestinbin/clone-redis#readme",
   "devDependencies": {
     "jest": "^29.7.0"
+  },
+  "dependencies": {
+    "winston": "^3.10.0"
   }
 }

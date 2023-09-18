@@ -2,6 +2,12 @@ import net from "net";
 import commandProcessorInit from "./processor.js";
 import Store from "./store/store.js";
 import StoreCleaner from "./store/storeCleaner.js";
+import logger, { configLogger } from "../commons/logger.js";
+
+configLogger({
+  level: "info",
+  name: "server",
+});
 
 function createStore() {
   const store = new Store();
@@ -11,7 +17,7 @@ function createStore() {
 
 function createTCPServer(store, port, address) {
   const server = net.createServer((socket) => {
-    console.log(
+    logger.debug(
       "Client connected:",
       socket.remoteAddress + ":" + socket.remotePort
     );
@@ -26,14 +32,13 @@ function createTCPServer(store, port, address) {
       try {
         processor(request);
       } catch (error) {
-        // TODO: log error
-        console.error(error);
-        outFn(`error`);
+        logger.error(error);
+        outFn(`error`); // TODO: to improve
       }
     });
 
     socket.on("end", () => {
-      console.log("Client disconnected");
+      logger.debug("Client disconnected");
     });
 
     socket.write("connected\n");
@@ -41,11 +46,11 @@ function createTCPServer(store, port, address) {
   });
 
   server.listen(port, address, () => {
-    console.log(`TCP server running on ${address}:${port}`);
+    logger.debug(`TCP server running on ${address}:${port}`);
   });
 
   server.on("error", (err) => {
-    console.error("Server error:", err.message);
+    logger.error("Server error:", err.message);
   });
 
   return server;

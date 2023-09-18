@@ -24,7 +24,7 @@ describe("protocol decoding", () => {
     expect(parseFunction).toThrowError("Decoding error");
   });
 
-  it("should parse a request with arguments correctly", () => {
+  it("should decode a request with arguments correctly", () => {
     decodingCheck(
       `set:4:null:2:12:3:"a":4:true:5:false:23:{"a":"asd::","b:2":123}`,
       {
