@@ -14,6 +14,7 @@ class Store {
     } else if (this.expiryTimes.has(key)) {
       this.expiryTimes.delete(key);
     }
+    return true;
   }
 
   get(key) {
@@ -28,6 +29,7 @@ class Store {
   delete(key) {
     this.data.delete(key);
     this.expiryTimes.delete(key);
+    return true;
   }
 
   expire(key, seconds) {
@@ -38,6 +40,7 @@ class Store {
     }
     const expiryTime = Date.now() + seconds * 1000;
     this.expiryTimes.set(key, expiryTime);
+    return true;
   }
 
   ttl(key) {

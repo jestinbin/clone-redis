@@ -52,7 +52,7 @@ Create 2 packages:
 
 # Todos
 
-- [ ] ...
+- [ ] handle argument keys and changing positions like redis `SET key value [NX | XX] [GET] ...`; [link](https://redis.io/commands/set/)
 
 
 
@@ -60,7 +60,7 @@ Create 2 packages:
 
 ## ...
 
-...
+
 
 
 
@@ -72,20 +72,30 @@ Create 2 packages:
 For the api.
 
 
-## https://en.wikipedia.org/wiki/Token_bucket#Algorithm
-
-Contains the Token Bucket pseudocode.
+## https://redis.io/docs/management/optimization/benchmarks/
 
 
-## https://kendru.github.io/javascript/2018/12/28/rate-limiting-in-javascript-with-a-token-bucket/
-
-> A token bucket is an algorithm that allows tokens to be accumulated over time at a specific rate.  
-> These tokens can then be “redeemed” to execute some action.  
-> If there are no tokens available, the action cannot be taken.  
-
-Contains a timer-free Token Bucket implementation that I've used as main reference.
+```bash
+$ redis-benchmark -n 100000 -q script load "redis.call('set','foo','bar')"  
+script load redis.call('set','foo','bar'): 69881.20 requests per second  
+```
 
 
+> To really test Redis, you need multiple connections (like redis-benchmark) and/or to use pipelining to aggregate several commands and/or multiple threads or processes. 
 
+> CPU is another very important factor. Being single-threaded, Redis favors fast CPUs with large caches and not many cores.  
+
+
+## https://redis.io/docs/reference/protocol-spec/#resp-simple-strings
+
+
+```
+RESP is a compromise among the following considerations:
+- Simple to implement.
+- Fast to parse.
+- Human readable.
+```
+
+The same observations are rilevant to the very simple (probably wrong) protocol realized for this clone project.
 
 

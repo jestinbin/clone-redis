@@ -1,6 +1,5 @@
 import net from "net";
-import commandProcessorInit from "./command/processor.js";
-import createResponse from "./response/createResponse.js";
+import commandProcessorInit from "./processor.js";
 import Store from "./store/store.js";
 import StoreCleaner from "./store/storeCleaner.js";
 
@@ -17,13 +16,19 @@ function createTCPServer(store, port, address) {
       socket.remoteAddress + ":" + socket.remotePort
     );
 
-    const processor = commandProcessorInit(store, createResponse(socket));
+    const outFn = (message) => {
+      socket.write(`${JSON.stringify(message)}\n`);
+    };
+
+    const processor = commandProcessorInit(store, outFn);
+
     socket.on("data", (request) => {
       try {
         processor(request);
       } catch (error) {
         // TODO: log error
         console.error(error);
+        outFn(`error`);
       }
     });
 
