@@ -23,13 +23,18 @@ function createTCPServer(store, port, address) {
     );
 
     const outFn = (message) => {
-      socket.write(`${JSON.stringify(message)}\n`);
+      let out = message;
+      if (message === undefined) {
+        out = "undefined";
+      }
+      socket.write(`${JSON.stringify(out)}\n`);
     };
 
     const processor = commandProcessorInit(store, outFn);
 
     socket.on("data", (request) => {
       try {
+        logger.debug("new data: " + request.toString());
         processor(request);
       } catch (error) {
         logger.error(error);

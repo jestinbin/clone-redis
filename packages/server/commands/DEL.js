@@ -1,4 +1,6 @@
+import { checkRequiredArg } from "../utils.js";
+
 export default (store, key) => {
-  // TODO: checkArgs();
+  checkRequiredArg(key, "key");
   return store.delete(key);
 };

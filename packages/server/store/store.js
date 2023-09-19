@@ -10,7 +10,7 @@ class Store {
     const storeValue = new StoreValue(key, value);
     this.data.set(key, storeValue);
     if (seconds !== undefined) {
-      this.expire(ley, seconds);
+      this.expire(key, seconds);
     } else if (this.expiryTimes.has(key)) {
       this.expiryTimes.delete(key);
     }
