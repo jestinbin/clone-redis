@@ -20,6 +20,14 @@ function createDelCommand(key) {
   return new Command("del", [key]);
 }
 
+function createRPushCommand(key, value) {
+  return new Command("rpush", [key, value]);
+}
+
+function createBLPopCommand(key) {
+  return new Command("blpop", [key]);
+}
+
 function clearEventListner(client) {
   client.removeAllListeners("data");
   client.removeAllListeners("error");
@@ -56,6 +64,8 @@ async function createClient(port = 8080, host = "127.0.0.1") {
     get: createGetCommand,
     set: createSetCommand,
     del: createDelCommand,
+    rpush: createRPushCommand,
+    blpop: createBLPopCommand,
     // rpush: ...,
     // blpop: ...,
     // publish: ...,
