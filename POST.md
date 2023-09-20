@@ -54,6 +54,10 @@ Create 2 packages:
 
 - [ ] handle argument keys and changing positions like redis `SET key value [NX | XX] [GET] ...`; [link](https://redis.io/commands/set/)
 - [ ] use a delimiter (e.g., '\n') for sending messages, buffer incoming data on the receiving side until the delimiter is detected, and then process the buffered message. This approach remains independent of socket-level `buffering` behavior.
+- [ ] handle blocking command like blpop
+- [ ] develop publish/subscribe commands
+- [ ] enable and test the expired keys cleanup
+- [ ] integrate a simple solution for saving data to disk (to decide: log or flush from memory?)
 
 
 
