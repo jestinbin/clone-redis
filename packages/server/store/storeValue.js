@@ -3,6 +3,8 @@ class StoreValue {
     this.key = key;
     this.value = value;
     this.type = this._determineType(value);
+    this.queueListeners = [];
+    this.fanoutListeners = {}; // socket_id -> cb
   }
 
   _determineType(value) {

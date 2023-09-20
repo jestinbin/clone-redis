@@ -8,7 +8,7 @@
     "example": "examples"
   },
   "scripts": {
-    "test": "ENV=test NODE_OPTIONS=--experimental-vm-modules npx jest",
+    "test": "ENV=dev NODE_OPTIONS=--experimental-vm-modules npx jest",
     "start:server": "node ./bin/server.js"
   },
   "repository": {

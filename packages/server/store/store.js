@@ -1,4 +1,6 @@
 import StoreValue from "./storeValue.js";
+import Operation from "./../operation.js";
+import config from "./../config.js";
 
 class Store {
   constructor() {
@@ -6,24 +8,41 @@ class Store {
     this.expiryTimes = new Map();
   }
 
-  set(key, value, seconds = undefined) {
+  _set(key, value, seconds = undefined) {
     const storeValue = new StoreValue(key, value);
     this.data.set(key, storeValue);
-    if (seconds !== undefined) {
+    if (seconds !== undefined && seconds !== null) {
       this.expire(key, seconds);
     } else if (this.expiryTimes.has(key)) {
       this.expiryTimes.delete(key);
     }
+    return storeValue;
+  }
+
+  set(key, value, seconds = undefined) {
+    this._set(key, value, seconds);
     return true;
   }
 
-  get(key) {
+  _get(key) {
     if (this._isExpired(key)) {
       this.delete(key);
       return undefined;
     }
-    const storeValue = this.data.get(key);
+    return this.data.get(key);
+  }
+
+  get(key) {
+    const storeValue = this._get(key);
     return storeValue ? storeValue.value : undefined;
+  }
+
+  has(key) {
+    if (this._isExpired(key)) {
+      this.delete(key);
+      return false;
+    }
+    return this.data.get(key) !== undefined;
   }
 
   delete(key) {
@@ -58,8 +77,42 @@ class Store {
   }
 
   type(key) {
-    const value = this.get(key);
-    return value?.type || undefined;
+    const storeValue = this._get(key);
+    return storeValue?.type || undefined;
+  }
+
+  rpush(key, value) {
+    const storeValue = this.data.get(key);
+    if (storeValue) {
+      storeValue.value.push(value);
+      if (storeValue.queueListeners.length !== 0) {
+        const element = storeValue.value.shift();
+        const outFn = storeValue.queueListeners.shift();
+        outFn(element);
+      }
+    }
+    return true;
+  }
+
+  blpop(key, outFn) {
+    let storeValue = this.data.get(key);
+    if (storeValue) {
+      if (storeValue.type !== "array") {
+        throw new Error(
+          "blpop can be used only over array or undefined values"
+        );
+      }
+      // value already present, no need to wait
+      if (storeValue.value.length !== 0) {
+        return storeValue.value.shift();
+      }
+    } else {
+      // create StoreValue array
+      storeValue = this._set(key, []);
+    }
+    // client will wait for a new value
+    storeValue.queueListeners.push((el) => outFn(el));
+    return new Operation(config.OPERATIONS.WAITING_FOR_RESPONSE);
   }
 
   _isExpired(key) {

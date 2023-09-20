@@ -32,6 +32,13 @@ function createTCPServer(store, port, address) {
       socket.write(`${out}\n`);
     };
 
+    const outErrorFn = (error) => {
+      const source = error?.originalError;
+      const stack = JSON.stringify(error?.stack);
+      const extra = JSON.stringify(error?.extra);
+      socket.write(`error|||${error}|||${source}|||${stack}|||${extra}\n`);
+    };
+
     const processor = commandProcessorInit(store, outFn);
 
     socket.on("data", (request) => {
@@ -40,7 +47,7 @@ function createTCPServer(store, port, address) {
         processor(request);
       } catch (error) {
         logger.error(error);
-        outFn(`error`); // TODO: to improve
+        outErrorFn(error);
       }
     });
 
