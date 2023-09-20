@@ -2,6 +2,10 @@ import { createLogger, format, transports } from "winston";
 
 const isTest = process.env.NODE_ENV === "test";
 
+// const customFormat = format.printf(({ level, message, timestamp, service }) => {
+//   return `${timestamp} [${service}] ${level}: ${message}`;
+// });
+
 const logger = createLogger({
   level: "info",
   silent: isTest,

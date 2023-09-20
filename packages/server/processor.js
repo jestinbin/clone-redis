@@ -6,7 +6,7 @@ import logger from "../commons/logger.js";
 function executeCommand(command, store) {
   const commandKey = command?.name?.toUpperCase();
   if (commandProcessors?.[commandKey]) {
-    logger.debug(`execute command "${commandKey}" with args [${command.args}]`);
+    // logger.debug(`execute command "${commandKey}" with args [${command.args}]`);
     return commandProcessors[commandKey](store, ...command.args);
   } else {
     throw new CustomError(
@@ -20,7 +20,7 @@ function executeCommand(command, store) {
 export default (store, outFn) => {
   return (request) => {
     const requestString = request.toString().trimEnd();
-    logger.debug(`request string "${requestString}"`);
+    // logger.debug(`request string "${requestString}"`);
     try {
       const command = decode(requestString);
       const outcome = executeCommand(command, store);

@@ -34,7 +34,7 @@ function createTCPServer(store, port, address) {
 
     socket.on("data", (request) => {
       try {
-        logger.debug("new data: " + request.toString());
+        // logger.debug("new data: " + request.toString());
         processor(request);
       } catch (error) {
         logger.error(error);
