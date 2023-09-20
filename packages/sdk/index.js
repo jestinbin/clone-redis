@@ -1,6 +1,6 @@
 import { encode } from "./../commons/protocol.js";
 import logger, { configLogger } from "./../commons/logger.js";
-import Command from "./Command.js";
+import Command from "./../commons/Command.js";
 import net from "net";
 
 configLogger({
@@ -56,6 +56,10 @@ async function createClient(port = 8080, host = "127.0.0.1") {
     get: createGetCommand,
     set: createSetCommand,
     del: createDelCommand,
+    // rpush: ...,
+    // blpop: ...,
+    // publish: ...,
+    // subscribe: ...,
   };
 
   return Object.keys(outMap).reduce((acc, key) => {

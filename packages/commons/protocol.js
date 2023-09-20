@@ -1,4 +1,5 @@
 import CustomError from "./customError.js";
+import Command from "./../commons/Command.js";
 
 /**
  * Here we're reinventing the wheel: a simple JSON based protocol
@@ -12,16 +13,13 @@ import CustomError from "./customError.js";
 
 function decode(request) {
   try {
-    const decoded = { args: [] };
-
     // check ":" existence
     const firstColonIndex = request.indexOf(":");
     if (firstColonIndex === -1) {
-      decoded.name = request.trimEnd();
-      return decoded;
+      return new Command(request.trimEnd(), []);
     }
 
-    decoded.name = request.substring(0, firstColonIndex);
+    const decoded = new Command(request.substring(0, firstColonIndex), []);
 
     let index = firstColonIndex;
     let argIndex = 1;
