@@ -132,3 +132,12 @@ RESP is a compromise among the following considerations:
 The same observations are rilevant to the very simple (probably wrong) protocol realized for this clone project.
 
 
+## https://redis.io/commands/expire/
+
+> Redis keys are expired in two ways: a passive way, and an active way.
+
+> A key is passively expired simply when some client tries to access it, and the key is found to be timed out.
+
+> ... periodically Redis tests a few keys at random among keys with an expire set.
+
+
