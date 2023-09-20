@@ -53,6 +53,9 @@ Create 2 packages:
 # Todos
 
 - [ ] handle argument keys and changing positions like redis `SET key value [NX | XX] [GET] ...`; [link](https://redis.io/commands/set/)
+- [ ] use a delimiter (e.g., '\n') for sending messages, buffer incoming data on the receiving side until the delimiter is detected, and then process the buffered message. This approach remains independent of socket-level `buffering` behavior.
+
+
 
 
 
@@ -65,6 +68,32 @@ Create 2 packages:
 
 
 # References & Notes
+
+## performance
+
+Simply commenting out the logger.debug lines, performance improves a lot.
+
+- terminal 1: `npm run start:server`
+- terminal 2: `node examples/bench.js`
+
+from
+```
+mine/jestinbin/clone-redis  main ✗                                                                                                      1m ⚑ ◒  
+▶ node examples/bench.js
+Connected to the server
+Requests made: 71803
+Total duration: 5.00 seconds
+Requests per second: 14360.60
+```
+
+to
+```
+▶ node examples/bench.js
+Connected to the server
+Requests made: 133893
+Total duration: 5.00 seconds
+Requests per second: 26778.60
+```
 
 
 ## https://github.com/redis/node-redis
