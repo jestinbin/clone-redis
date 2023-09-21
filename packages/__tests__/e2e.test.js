@@ -37,4 +37,23 @@ describe("SDK integrations tests", () => {
     await new Promise((res) => setTimeout(() => res(), 1200));
     expect(await client2.get("foo")).toBe(undefined);
   });
+
+  it.only("should allow clients to subscribe to a key where one or more client can publish value", async () => {
+    const createSubscribePromise = (client) =>
+      new Promise((resolve, reject) => {
+        client.subscribe("foo", (err, value) => {
+          if (err) {
+            reject(err);
+          } else {
+            resolve(value);
+          }
+        });
+      });
+
+    const promise1 = createSubscribePromise(client1);
+    const promise2 = createSubscribePromise(client2);
+
+    await client3.publish("foo", "test");
+    expect(await Promise.all([promise1, promise2])).toEqual(["test", "test"]);
+  });
 });

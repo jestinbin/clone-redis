@@ -1,6 +1,7 @@
 import StoreValue from "./storeValue.js";
 import Operation from "./../operation.js";
 import config from "./../config.js";
+import CustomError from "../../commons/customError.js";
 
 class Store {
   constructor() {
@@ -82,7 +83,7 @@ class Store {
   }
 
   rpush(key, value) {
-    const storeValue = this.data.get(key);
+    const storeValue = this._get(key);
     if (storeValue) {
       storeValue.value.push(value);
       if (storeValue.queueListeners.length !== 0) {
@@ -95,7 +96,7 @@ class Store {
   }
 
   blpop(key, outFn) {
-    let storeValue = this.data.get(key);
+    let storeValue = this._get(key);
     if (storeValue) {
       if (storeValue.type !== "array") {
         throw new Error(
@@ -113,6 +114,29 @@ class Store {
     // client will wait for a new value
     storeValue.queueListeners.push((el) => outFn(el));
     return new Operation(config.OPERATIONS.WAITING_FOR_RESPONSE);
+  }
+
+  publish(key, value) {
+    let storeValue = this._get(key);
+    if (!storeValue) {
+      storeValue = new StoreValue(key, null, "pubsub");
+      this.data.set(key, storeValue);
+    } else if (storeValue.type !== "pubsub") {
+      throw new CustomError("can't subscribe to a non-pubsub field");
+    }
+    storeValue.fanoutListeners.forEach((outFn) => outFn(value));
+  }
+
+  subscribe(key, outFn) {
+    let storeValue = this._get(key);
+    if (!storeValue) {
+      storeValue = new StoreValue(key, null, "pubsub");
+      this.data.set(key, storeValue);
+    } else if (storeValue.type !== "pubsub") {
+      throw new CustomError("can't subscribe to a non-pubsub field");
+    }
+    storeValue.fanoutListeners.push(outFn);
+    return new Operation(config.OPERATIONS.NO_RESPONSE);
   }
 
   _isExpired(key) {

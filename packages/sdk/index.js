@@ -1,6 +1,7 @@
-import { encode } from "./../commons/protocol.js";
-import logger, { configLogger } from "./../commons/logger.js";
-import Command from "./../commons/Command.js";
+import { encode } from "../commons/protocol.js";
+import logger, { configLogger } from "../commons/logger.js";
+import Command from "../commons/Command.js";
+import CustomError from "../commons/customError.js";
 import net from "net";
 
 configLogger({
@@ -33,6 +34,14 @@ function createBLPopCommand(key) {
   return new Command("blpop", [key]);
 }
 
+function createPublishCommand(key, value) {
+  return new Command("publish", [key, value]);
+}
+
+function createSubscribeCommand(key) {
+  return new Command("subscribe", [key]);
+}
+
 function createCommands(client) {
   const outMap = {
     get: createGetCommand,
@@ -40,14 +49,50 @@ function createCommands(client) {
     del: createDelCommand,
     rpush: createRPushCommand,
     blpop: createBLPopCommand,
-    // publish: ...,
-    // subscribe: ...,
+    publish: createPublishCommand,
+    subscribe: createSubscribeCommand,
   };
 
-  return Object.keys(outMap).reduce((acc, key) => {
-    acc[key] = function () {
+  return Object.keys(outMap).reduce((acc, commandKey) => {
+    let mode = "client-server"; // or "pubsub"
+
+    acc[commandKey] = function () {
+      // subscribe command
+      if (commandKey === "subscribe" && mode !== "pubsub") {
+        mode = "pubsub";
+        const fn = arguments[1];
+        client.write(`${encode(outMap[commandKey](arguments[0]))}\n`);
+        client.on("data", (data) => {
+          const dataStr = data.toString().trim();
+          if (dataStr === "undefined") {
+            fn(null, undefined);
+          } else if (/^error/.test(dataStr)) {
+            fn(new Error(dataStr), null);
+          } else {
+            fn(null, JSON.parse(dataStr));
+          }
+        });
+        client.on("error", (error) => {
+          logger.error("Error on connection:", error);
+          fn(new Error(error), null);
+        });
+        return;
+      }
+
+      if (commandKey === "subscribe" && mode === "pubsub") {
+        throw new CustomError("can't subscribe more than one time");
+      }
+
+      // ... remaining commands
       return new Promise((resolve, reject) => {
-        client.write(`${encode(outMap[key](...arguments))}\n`);
+        const okPublishCondition =
+          commandKey === "publish" && mode === "pubsub";
+        if (commandKey !== "publish" && mode === "pubsub") {
+          throw new CustomError(
+            `when in pubsub mode, can't issue non-publish, non-subscribe command; key:${key}, mode:${mode}`
+          );
+        }
+        client.write(`${encode(outMap[commandKey](...arguments))}\n`);
         client.once("data", (data) => {
           const dataStr = data.toString().trim();
           if (dataStr === "undefined") {

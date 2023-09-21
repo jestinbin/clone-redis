@@ -1,10 +1,10 @@
 class StoreValue {
-  constructor(key, value) {
+  constructor(key, value, type) {
     this.key = key;
     this.value = value;
-    this.type = this._determineType(value);
+    this.type = type || this._determineType(value);
     this.queueListeners = [];
-    this.fanoutListeners = {}; // socket_id -> cb
+    this.fanoutListeners = [];
   }
 
   _determineType(value) {

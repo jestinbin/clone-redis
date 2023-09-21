@@ -26,7 +26,16 @@ describe("SDK integrations tests", () => {
   });
 
   it("should implement the expected interface", async () => {
-    const expectedMethods = ["get", "set", "del", "rpush", "blpop", "close"];
+    const expectedMethods = [
+      "get",
+      "set",
+      "del",
+      "rpush",
+      "blpop",
+      "close",
+      "publish",
+      "subscribe",
+    ];
     expectedMethods.forEach((method) => {
       expect(typeof client[method]).toBe("function");
     });

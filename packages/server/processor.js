@@ -6,7 +6,7 @@ import Operation from "./operation.js";
 import config from "./config.js";
 
 const {
-  OPERATIONS: { WAITING_FOR_RESPONSE },
+  OPERATIONS: { WAITING_FOR_RESPONSE, NO_RESPONSE },
 } = config;
 
 function executeCommand(command, context) {
@@ -31,7 +31,12 @@ export default (store, outFn) => {
       const context = { store, outFn };
       const command = decode(requestString);
       const outcome = executeCommand(command, context);
-      if (!Operation.checkOperationCode(outcome, WAITING_FOR_RESPONSE)) {
+      if (
+        !Operation.checkOperationCode(outcome, [
+          WAITING_FOR_RESPONSE,
+          NO_RESPONSE,
+        ])
+      ) {
         outFn(outcome);
       }
     } catch (error) {

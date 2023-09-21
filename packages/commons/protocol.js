@@ -52,6 +52,10 @@ function encode(command) {
     let encoded = command.name;
 
     for (let arg of command.args) {
+      if (typeof arg === "function") {
+        continue;
+      }
+
       // Convert the argument into a string. JSON.stringify is used for objects, arrays, and special values like null.
       let argString =
         typeof arg === "string" ? `"${arg}"` : JSON.stringify(arg);
