@@ -1,7 +1,7 @@
-import sdk from "./../../packages/sdk/index.js";
+import { createClient } from "./../../packages/sdk/index.js";
 import sleep from "./sleep.js";
 
-const client = await sdk.createClient();
+const client = await createClient();
 
 let count = 0;
 

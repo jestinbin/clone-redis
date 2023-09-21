@@ -1,7 +1,7 @@
 import sdk from "./../packages/sdk/index.js";
-import { bootstrap } from "./../packages/server/index.js";
+import { createServer } from "./../packages/server/index.js";
 
-bootstrap();
+createServer();
 
 const client = await sdk.createClient();
 
