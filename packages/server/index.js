@@ -17,6 +17,8 @@ function createStore() {
 
 function createTCPServer(store, port, address) {
   const server = net.createServer((socket) => {
+    socket.setNoDelay(true);
+
     logger.debug(
       "Client connected:",
       socket.remoteAddress + ":" + socket.remotePort

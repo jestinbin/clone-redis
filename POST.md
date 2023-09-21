@@ -58,6 +58,8 @@ Create 2 packages:
 - [ ] develop publish/subscribe commands
 - [ ] enable and test the expired keys cleanup
 - [ ] integrate a simple solution for saving data to disk (to decide: log or flush from memory?)
+- [ ] re-enable Nagle's algorithm on the TCP connection used for message grouping (remove `setNoDelay(true)`)
+
 
 
 

@@ -75,9 +75,9 @@ function createConnection(port, host) {
     const client = net.createConnection(port, host, () => {
       logger.info("Connected to the server");
     });
+    client.setNoDelay(true);
     client.once("data", (data) => {
       if (data.toString().trim() === "connected") {
-        client.setNoDelay(true);
         resolve(client);
       } else {
         reject(new Error("Expected 'connected' message on client connection."));

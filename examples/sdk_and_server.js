@@ -1,14 +1,16 @@
-import sdk from "./../packages/sdk/index.js";
+import { createClient } from "./../packages/sdk/index.js";
 import { createServer } from "./../packages/server/index.js";
 
-createServer();
+const server = createServer();
+const client = await createClient();
 
-const client = await sdk.createClient();
+await client.set("foo", 123, 1);
 
-await client.set("foo", 123, 2);
+console.log(await client.get("foo"));
+
+await new Promise((res) => setTimeout(() => res(), 2000));
 
 console.log(await client.get("foo"));
 
-await new Promise((res) => setTimeout(() => res(), 3000));
-
-console.log(await client.get("foo"));
+client.close();
+server.close();
