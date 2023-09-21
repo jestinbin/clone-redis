@@ -70,10 +70,11 @@ function createTCPServer(store, port, address) {
   return server;
 }
 
-function bootstrap({ port = 8080, address = "127.0.0.1" } = {}) {
+function createServer({ port = 8080, address = "127.0.0.1" } = {}) {
   const store = createStore();
   const socket = createTCPServer(store, port, address);
-  return { store, socket };
+  const close = () => socket.close();
+  return { store, socket, close };
 }
 
-export { bootstrap };
+export { createServer };

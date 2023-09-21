@@ -8,6 +8,11 @@ configLogger({
   name: "sdk",
 });
 
+function clearEventListner(client) {
+  client.removeAllListeners("data");
+  client.removeAllListeners("error");
+}
+
 function createGetCommand(key) {
   return new Command("get", [key]);
 }
@@ -28,12 +33,44 @@ function createBLPopCommand(key) {
   return new Command("blpop", [key]);
 }
 
-function clearEventListner(client) {
-  client.removeAllListeners("data");
-  client.removeAllListeners("error");
+function createCommands(client) {
+  const outMap = {
+    get: createGetCommand,
+    set: createSetCommand,
+    del: createDelCommand,
+    rpush: createRPushCommand,
+    blpop: createBLPopCommand,
+    // publish: ...,
+    // subscribe: ...,
+  };
+
+  return Object.keys(outMap).reduce((acc, key) => {
+    acc[key] = function () {
+      return new Promise((resolve, reject) => {
+        client.write(`${encode(outMap[key](...arguments))}\n`);
+        client.once("data", (data) => {
+          const dataStr = data.toString().trim();
+          if (dataStr === "undefined") {
+            resolve(undefined);
+          } else if (/^error/.test(dataStr)) {
+            reject(new Error(dataStr));
+          } else {
+            resolve(JSON.parse(dataStr));
+          }
+          clearEventListner(client);
+        });
+        client.once("error", (error) => {
+          logger.error("Error on connection:", error);
+          reject(new Error(error));
+          clearEventListner(client);
+        });
+      });
+    };
+    return acc;
+  }, {});
 }
 
-async function createConnection(port, host) {
+function createConnection(port, host) {
   const clientPromise = new Promise((resolve, reject) => {
     const client = net.createConnection(port, host, () => {
       logger.info("Connected to the server");
@@ -59,53 +96,16 @@ async function createConnection(port, host) {
 
 async function createClient(port = 8080, host = "127.0.0.1") {
   const client = await createConnection(port, host);
+  const commands = createCommands(client);
 
-  const outMap = {
-    get: createGetCommand,
-    set: createSetCommand,
-    del: createDelCommand,
-    rpush: createRPushCommand,
-    blpop: createBLPopCommand,
-    // rpush: ...,
-    // blpop: ...,
-    // publish: ...,
-    // subscribe: ...,
+  const close = () => {
+    client.end();
   };
 
-  return Object.keys(outMap).reduce((acc, key) => {
-    acc[key] = function () {
-      return new Promise((resolve, reject) => {
-        client.write(`${encode(outMap[key](...arguments))}\n`);
-        client.once("data", (data) => {
-          const outcome = JSON.parse(data.toString());
-          if (outcome === "error") {
-            reject(new Error("Error on messaging"));
-          } else {
-            resolve(outcome);
-          }
-          clearEventListner(client);
-        });
-        client.once("error", (error) => {
-          logger.error("Error on connection:", error);
-          reject(new Error(error));
-          clearEventListner(client);
-        });
-      });
-    };
-    return acc;
-  }, {});
-
-  // TODO: remove
-  // function sendcommand(fn) {
-  //   return function () {
-  //     client.write(`${encode(fn(...arguments))}\n`);
-  //   };
-  // }
-  // return {
-  //   get: sendcommand(createGetCommand),
-  //   set: sendcommand(createSetCommand),
-  //   del: sendcommand(createDelCommand),
-  // };
+  return {
+    ...commands,
+    close,
+  };
 }
 
-export default { createClient };
+export { createClient };

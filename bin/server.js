@@ -1,3 +1,3 @@
-import { bootstrap } from "./../packages/server/index.js";
+import { createServer } from "./../packages/server/index.js";
 
-bootstrap();
+createServer();
