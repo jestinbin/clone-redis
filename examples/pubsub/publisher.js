@@ -6,9 +6,7 @@ const client = await createClient();
 let count = 0;
 
 while (true) {
-  await client.rpush("foo", count++);
+  await client.publish("foo", count++);
   console.log(`[producer] new value: ${count}`);
-  const queue = await client.get("foo");
-  console.log(`[producer] queue: ${queue}`);
-  await sleep(333);
+  await sleep(1000);
 }

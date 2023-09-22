@@ -5,8 +5,6 @@ const client = await createClient();
 
 const processId = process.pid;
 
-while (true) {
-  const value = await client.blpop("foo");
-  console.log(`[consumer-${processId}] value: ${value}`);
-  await sleep(500);
-}
+client.subscribe("foo", (err, value) => {
+  console.log(`[subscriber-${processId}] value: ${value}`);
+});
