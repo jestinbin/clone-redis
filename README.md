@@ -1,3 +1,6 @@
+
+[![Run npm tests](https://github.com/jestinbin/clone-redis/actions/workflows/run-tests.yml/badge.svg)](https://github.com/jestinbin/clone-redis/actions/workflows/run-tests.yml)
+
 # clone-redis
 
 A simplified, incomplete, json-based `redis` clone.

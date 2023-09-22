@@ -1,48 +1,41 @@
 import { encode } from "../commons/protocol.js";
 import logger, { configLogger } from "../commons/logger.js";
-import Command from "../commons/Command.js";
 import CustomError from "../commons/customError.js";
 import net from "net";
+import {
+  createGetCommand,
+  createSetCommand,
+  createDelCommand,
+  createRPushCommand,
+  createBLPopCommand,
+  createPublishCommand,
+  createSubscribeCommand,
+} from "./commands.js";
 
 configLogger({
   level: "info",
   name: "sdk",
 });
 
+let sigintHandled = false;
+
 function clearEventListner(client) {
   client.removeAllListeners("data");
   client.removeAllListeners("error");
 }
 
-function createGetCommand(key) {
-  return new Command("get", [key]);
+function handleData(data, cbSuccess, cdError) {
+  const dataStr = data.toString().trim();
+  if (dataStr === "undefined") {
+    cbSuccess(null, undefined);
+  } else if (/^error/.test(dataStr)) {
+    cdError(new Error(dataStr));
+  } else {
+    cbSuccess(null, JSON.parse(dataStr));
+  }
 }
 
-function createSetCommand(key, value, seconds = -1) {
-  return new Command("set", [key, value, seconds]);
-}
-
-function createDelCommand(key) {
-  return new Command("del", [key]);
-}
-
-function createRPushCommand(key, value) {
-  return new Command("rpush", [key, value]);
-}
-
-function createBLPopCommand(key) {
-  return new Command("blpop", [key]);
-}
-
-function createPublishCommand(key, value) {
-  return new Command("publish", [key, value]);
-}
-
-function createSubscribeCommand(key) {
-  return new Command("subscribe", [key]);
-}
-
-function createCommands(client) {
+function createApiInterface(client) {
   const outMap = {
     get: createGetCommand,
     set: createSetCommand,
@@ -63,14 +56,11 @@ function createCommands(client) {
         const fn = arguments[1];
         client.write(`${encode(outMap[commandKey](arguments[0]))}\n`);
         client.on("data", (data) => {
-          const dataStr = data.toString().trim();
-          if (dataStr === "undefined") {
-            fn(null, undefined);
-          } else if (/^error/.test(dataStr)) {
-            fn(new Error(dataStr), null);
-          } else {
-            fn(null, JSON.parse(dataStr));
-          }
+          handleData(
+            data,
+            (err, val) => fn(err, val),
+            (err, val) => fn(err, null)
+          );
         });
         client.on("error", (error) => {
           logger.error("Error on connection:", error);
@@ -94,14 +84,11 @@ function createCommands(client) {
         }
         client.write(`${encode(outMap[commandKey](...arguments))}\n`);
         client.once("data", (data) => {
-          const dataStr = data.toString().trim();
-          if (dataStr === "undefined") {
-            resolve(undefined);
-          } else if (/^error/.test(dataStr)) {
-            reject(new Error(dataStr));
-          } else {
-            resolve(JSON.parse(dataStr));
-          }
+          handleData(
+            data,
+            (err, val) => resolve(val),
+            (err, val) => reject(err)
+          );
           clearEventListner(client);
         });
         client.once("error", (error) => {
@@ -141,20 +128,23 @@ function createConnection(port, host) {
 
 async function createClient(port = 8080, host = "127.0.0.1") {
   const client = await createConnection(port, host);
-  const commands = createCommands(client);
+  const apiInterface = createApiInterface(client);
 
   const close = () => {
     client.end();
   };
 
-  process.on("SIGINT", function () {
-    console.log("\nSIGINT...");
-    close();
-    process.exit();
-  });
+  if (sigintHandled === false) {
+    process.on("SIGINT", function () {
+      console.log("\nSIGINT...");
+      close();
+      process.exit();
+    });
+    sigintHandled = true;
+  }
 
   return {
-    ...commands,
+    ...apiInterface,
     close,
   };
 }

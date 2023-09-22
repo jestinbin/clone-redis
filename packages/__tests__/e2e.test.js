@@ -38,7 +38,7 @@ describe("SDK integrations tests", () => {
     expect(await client2.get("foo")).toBe(undefined);
   });
 
-  it.only("should allow clients to subscribe to a key where one or more client can publish value", async () => {
+  it("should allow clients to subscribe to a key where one or more client can publish value", async () => {
     const createSubscribePromise = (client) =>
       new Promise((resolve, reject) => {
         client.subscribe("foo", (err, value) => {

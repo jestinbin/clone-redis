@@ -9,6 +9,8 @@ configLogger({
   name: "server",
 });
 
+let sigintHandled = false;
+
 function createStore() {
   const store = new Store();
   // const storeCleaner = new StoreCleaner(store);
@@ -77,11 +79,14 @@ function createServer({ port = 8080, address = "127.0.0.1" } = {}) {
   const socket = createTCPServer(store, port, address);
   const close = () => socket.close();
 
-  process.on("SIGINT", function () {
-    console.log("\nSIGINT...");
-    close();
-    process.exit();
-  });
+  if (sigintHandled === false) {
+    process.on("SIGINT", function () {
+      console.log("\nSIGINT...");
+      close();
+      process.exit();
+    });
+    sigintHandled = true;
+  }
 
   return { store, socket, close };
 }

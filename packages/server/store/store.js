@@ -26,7 +26,7 @@ class Store {
   }
 
   _get(key) {
-    if (this._isExpired(key)) {
+    if (this.isExpired(key)) {
       this.delete(key);
       return undefined;
     }
@@ -39,7 +39,7 @@ class Store {
   }
 
   has(key) {
-    if (this._isExpired(key)) {
+    if (this.isExpired(key)) {
       this.delete(key);
       return false;
     }
@@ -139,7 +139,7 @@ class Store {
     return new Operation(config.OPERATIONS.NO_RESPONSE);
   }
 
-  _isExpired(key) {
+  isExpired(key) {
     const expiryTime = this.expiryTimes.get(key);
     if (!expiryTime) return false;
     return expiryTime <= Date.now();
