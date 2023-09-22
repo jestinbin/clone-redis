@@ -6,7 +6,7 @@ Developed in `node.js`.
 
 This projects contains:
 - a `server`: the counterpart to the redis server
-- an with the SDK and server`sdk`: the counterpart to the node.js redis module
+- an `sdk`: the counterpart to the node.js redis module
 - a `test suite` for every package and another for e2e tests
 
 Note: `nc` (or `netcat`) can be used to test communication with the server via the terminal, e.g., `nc 127.0.0.1 8080`
