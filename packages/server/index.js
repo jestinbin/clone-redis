@@ -76,6 +76,13 @@ function createServer({ port = 8080, address = "127.0.0.1" } = {}) {
   const store = createStore();
   const socket = createTCPServer(store, port, address);
   const close = () => socket.close();
+
+  process.on("SIGINT", function () {
+    console.log("\nSIGINT...");
+    close();
+    process.exit();
+  });
+
   return { store, socket, close };
 }
 

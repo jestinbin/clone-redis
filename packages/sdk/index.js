@@ -147,6 +147,12 @@ async function createClient(port = 8080, host = "127.0.0.1") {
     client.end();
   };
 
+  process.on("SIGINT", function () {
+    console.log("\nSIGINT...");
+    close();
+    process.exit();
+  });
+
   return {
     ...commands,
     close,
