@@ -13,8 +13,9 @@ let sigintHandled = false;
 
 function createStore() {
   const store = new Store();
-  // const storeCleaner = new StoreCleaner(store);
-  return store;
+  const storeCleaner = new StoreCleaner(store, 50);
+  storeCleaner.startCleanupInterval();
+  return { store, storeCleaner };
 }
 
 function createTCPServer(store, port, address) {
@@ -75,9 +76,12 @@ function createTCPServer(store, port, address) {
 }
 
 function createServer({ port = 8080, address = "127.0.0.1" } = {}) {
-  const store = createStore();
+  const { store, storeCleaner } = createStore();
   const socket = createTCPServer(store, port, address);
-  const close = () => socket.close();
+  const close = () => {
+    storeCleaner?.stopCleanupInterval();
+    socket.close();
+  };
 
   if (sigintHandled === false) {
     process.on("SIGINT", function () {
