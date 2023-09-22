@@ -25,7 +25,7 @@ Note: `nc` (or `netcat`) can be used to test communication with the server via t
 ## Getting started
 
 - install the dependencies `npm ci`
-- activate the server: `npm run start:server`
+- activate the server `npm run start:server`
 - then, write a simple client with the sdk
 
 ```js
@@ -55,11 +55,11 @@ client.close();
 - **sdk_and_server**: a getting started with the sdk and server
 - **pubsub**: simulate pubsub behaviour using the publish and subscribe commands (similar to redis but simplified)
 	- launch `./examples/queue/launcher.sh`: opens 4 terminal: server, publisher and 2 subscribers
-	- note: the has only been tested on MacOS
+	- note: the launcher has only been tested on MacOS
 - **queue**: simulate a queue behaviour with rpush and blpop commands (similar to redis but simplified)
 	- launch `./examples/queue/launcher1.sh`: opens 3 terminal: server, producer and consumer
 	- launch `./examples/queue/launcher2.sh`: opens an additional consumer. You can repeat this as many times as desired
-	- note: the has only been tested on MacOS
+	- note: the launcher has only been tested on MacOS
 - **bench_raw**: a simple benchmark to determine requests per second throughput. The server is real, while the client is mocked
 - **bench_sdk**: similiar to bench_raw, but the client uses the sdk code
 
