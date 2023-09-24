@@ -1,6 +1,10 @@
 
 [![Run npm tests](https://github.com/jestinbin/clone-redis/actions/workflows/run-tests.yml/badge.svg)](https://github.com/jestinbin/clone-redis/actions/workflows/run-tests.yml)
 
+> :warning: **Warning**  
+This is a clone project with no claims to completeness or adherence to specific APIs and/or solutions.  
+The purpose of the project is purely educational. It was not made with love, but with effort and fun.
+
 # clone-redis
 
 A simplified, incomplete, json-based `redis` clone.
@@ -69,7 +73,7 @@ client.close();
 
 
 
-## Todos
+## Future Works
 
 - [x] handle blocking command like blpop
 - [x] develop publish/subscribe commands
