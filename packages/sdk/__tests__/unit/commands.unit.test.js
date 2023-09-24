@@ -6,9 +6,9 @@ import {
   createBLPopCommand,
   createPublishCommand,
   createSubscribeCommand,
-} from "../commands.js";
+} from "../../commands.js";
 
-import Command from "../../commons/Command.js";
+import Command from "../../../commons/Command.js";
 
 describe("Command creation functions", () => {
   it("should create a get command", () => {

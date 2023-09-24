@@ -1,4 +1,4 @@
-import { checkRequiredArg } from "../utils.js";
+import { checkRequiredArg } from "../../utils.js";
 
 describe("checkRequiredArg function", () => {
   it("should not throw an error when a valid value is provided", () => {

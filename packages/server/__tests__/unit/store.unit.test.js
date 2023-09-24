@@ -1,9 +1,9 @@
 import { jest } from "@jest/globals";
-import Store from "../store/store.js";
-import StoreValue from "../store/storeValue.js";
-import Operation from "../operation";
-import config from "./../config";
-import CustomError from "./../../commons/customError.js";
+import Store from "../../store/store.js";
+import StoreValue from "../../store/storeValue.js";
+import Operation from "../../operation";
+import config from "./../../config";
+import CustomError from "./../../../commons/customError.js";
 
 jest.useFakeTimers();
 

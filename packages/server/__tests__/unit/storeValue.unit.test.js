@@ -1,4 +1,4 @@
-import StoreValue from "../store/storeValue.js";
+import StoreValue from "../../store/storeValue.js";
 
 describe("StoreValue", () => {
   it("should correctly set and get the key", () => {

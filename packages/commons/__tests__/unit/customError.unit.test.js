@@ -1,4 +1,4 @@
-import CustomError from "../customError.js";
+import CustomError from "../../customError.js";
 
 describe("CustomError", () => {
   it("should correctly set the message", () => {

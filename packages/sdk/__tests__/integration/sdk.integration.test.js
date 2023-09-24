@@ -1,6 +1,6 @@
 import { jest } from "@jest/globals";
-import Command from "../../commons/Command.js";
-import { createClient } from "../index.js";
+import Command from "../../../commons/Command.js";
+import { createClient } from "../../index.js";
 import net from "net";
 
 describe("SDK integrations tests", () => {

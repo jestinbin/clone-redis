@@ -1,4 +1,4 @@
-import Command from "../Command.js";
+import Command from "../../Command.js";
 
 describe("Command class", () => {
   it("should create a Command instance with correct attributes", () => {

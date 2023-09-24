@@ -1,5 +1,5 @@
 import { jest } from "@jest/globals";
-import { decode, encode } from "../protocol.js";
+import { decode, encode } from "../../protocol.js";
 
 const decodingCheck = (input, expectedOutput) => {
   const output = decode(input);

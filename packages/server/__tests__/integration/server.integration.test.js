@@ -1,6 +1,6 @@
 import { jest } from "@jest/globals";
 import net from "net";
-import { createServer } from "../../server/index.js";
+import { createServer } from "../../../server/index.js";
 
 describe("TCP Server e2e tests", () => {
   let server;
@@ -24,7 +24,7 @@ describe("TCP Server e2e tests", () => {
     });
 
   beforeEach(async () => {
-    server = createServer();
+    server = await createServer({ persistence: false });
     client1 = await connectClient();
     client2 = await connectClient();
     client3 = await connectClient();
