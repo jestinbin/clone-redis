@@ -1,6 +1,6 @@
 import fs from "fs";
 import logger, { configLogger } from "../../commons/logger.js";
-import { deleteFile } from "../utils.js";
+import { deleteFile, checkOrCreateFilePath } from "../utils.js";
 
 class StoreLogManager {
   constructor({
@@ -25,6 +25,8 @@ class StoreLogManager {
   }
 
   flushBuffer() {
+    checkOrCreateFilePath(this.logPath);
+
     fs.appendFileSync(this.logPath, this.logBuffer.join("\n") + "\n");
     this.logBuffer = [];
   }

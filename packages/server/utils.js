@@ -1,4 +1,5 @@
 import fs from "fs";
+import path from "path";
 
 export function readLogFile(logFilePath) {
   if (fs.existsSync(logFilePath)) {
@@ -18,8 +19,15 @@ export function checkRequiredArg(value, argName) {
   }
 }
 
-export function deleteFile(logFilePath) {
-  if (fs.existsSync(logFilePath)) {
-    fs.unlinkSync(logFilePath);
+export function deleteFile(filePath) {
+  if (fs.existsSync(filePath)) {
+    fs.unlinkSync(filePath);
+  }
+}
+
+export function checkOrCreateFilePath(filePath) {
+  const dir = path.dirname(filePath);
+  if (!fs.existsSync(dir)) {
+    fs.mkdirSync(dir, { recursive: true });
   }
 }
