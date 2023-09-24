@@ -2,7 +2,7 @@ import { createClient } from "./../packages/sdk/index.js";
 import { createServer } from "./../packages/server/index.js";
 import sleep from "./utils/sleep.js";
 
-const server = createServer();
+const server = await createServer();
 const client = await createClient();
 
 await client.set("foo", 123, 1); // 1 second of expiration time

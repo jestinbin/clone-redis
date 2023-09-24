@@ -1,21 +1,30 @@
 import logger from "./../../commons/logger.js";
 
 class StoreCleaner {
-  constructor(store, keysToCheck = 50) {
+  constructor({
+    store,
+    keysToCheck = 50,
+    intervalMs = 1000,
+    start = false,
+  } = {}) {
     this.store = store;
     this.keysToCheck = keysToCheck;
+    this.intervalMs = intervalMs;
     this.cleanupInterval = null;
+    if (start) {
+      this.startCleanup();
+    }
   }
 
-  startCleanupInterval(intervalMs = 1000) {
+  startCleanup() {
     if (this.cleanupInterval) {
       throw new Error("Cleanup interval already started");
     }
-
-    this.cleanupInterval = setInterval(() => this.cleanup(), intervalMs);
+    this.cleanupInterval = setInterval(() => this.cleanup(), this.intervalMs);
   }
 
-  stopCleanupInterval() {
+  stopCleanup() {
+    logger.debug(`store stop cleanup`);
     if (this.cleanupInterval) {
       clearInterval(this.cleanupInterval);
       this.cleanupInterval = null;

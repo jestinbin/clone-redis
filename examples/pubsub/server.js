@@ -1,3 +1,3 @@
 import { createServer } from "./../../packages/server/index.js";
 
-createServer();
+await createServer();

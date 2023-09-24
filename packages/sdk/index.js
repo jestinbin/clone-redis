@@ -12,10 +12,10 @@ import {
   createSubscribeCommand,
 } from "./commands.js";
 
-configLogger({
-  level: "info",
-  name: "sdk",
-});
+// configLogger({
+//   level: "info",
+//   name: "sdk",
+// });
 
 let sigintHandled = false;
 

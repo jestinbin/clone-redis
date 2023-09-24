@@ -1,7 +1,7 @@
 import { createServer } from "./../packages/server/index.js";
 import { createClient } from "./../packages/sdk/index.js";
 
-const server = createServer();
+const server = await createServer();
 const client = await createClient();
 
 let startTime;

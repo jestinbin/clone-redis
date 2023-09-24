@@ -65,6 +65,7 @@ client.close();
 	- note: the launcher has only been tested on MacOS
 - **bench_raw**: a simple benchmark to determine requests per second throughput. The server is real, while the client is mocked
 - **bench_sdk**: similiar to bench_raw, but the client uses the sdk code
+- **persistence_counter**: uses the store's persistence. To be started multiple times. Each activation is a set command with a 5-second expiration time. Depending on how long you wait, the next counter number will be provided, or it will restart from 1.
 
 
 
@@ -73,9 +74,9 @@ client.close();
 - [x] handle blocking command like blpop
 - [x] develop publish/subscribe commands
 - [x] enable and test the expired keys cleanup
-- [ ] integrate a simple solution for saving data to disk (to decide: log or flush from memory?)
-- [ ] use a delimiter (e.g., '\n') for sending messages, buffer incoming data on the receiving side until the delimiter is detected, and then process the buffered message. This approach remains independent of socket-level `buffering` behavior.
-  - [ ] re-enable Nagle's algorithm on the TCP connection used for message grouping (remove `setNoDelay(true)`)
-
-
+- [x] integrate a simple solution for saving data to disk (to decide: log or flush from memory?)
+- [ ] add additional commands to the SDK API (e.g.: expire, lpop, etc.)
+- [ ] optimize the data restoration procedure by reading data as a stream instead of in a single pass
+- [ ] refine the store interface by hiding internal methods that start with _
+- [ ] use the compactLog feature during the execution (now it's used at the start)
 

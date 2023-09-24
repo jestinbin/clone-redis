@@ -2,84 +2,107 @@ import net from "net";
 import commandProcessorInit from "./processor.js";
 import Store from "./store/store.js";
 import StoreCleaner from "./store/storeCleaner.js";
+import StoreLogManager from "./store/storeLogManager.js";
 import logger, { configLogger } from "../commons/logger.js";
 
-configLogger({
-  level: "info",
-  name: "server",
-});
+// configLogger({
+//   level: process.ENV.severity || "info",
+//   name: "server",
+// });
 
 let sigintHandled = false;
 
-function createStore() {
-  const store = new Store();
-  const storeCleaner = new StoreCleaner(store, 50);
-  storeCleaner.startCleanupInterval();
-  return { store, storeCleaner };
+function createStore(
+  withCleanup = false,
+  withPersistence = false,
+  persistencePath = null,
+  resetPersistence = false
+) {
+  const logConfig = persistencePath ? { logPath: persistencePath } : {};
+  const logManager = withPersistence ? new StoreLogManager(logConfig) : null;
+
+  const store = new Store({ logManager, resetPersistence });
+
+  const cleaner = withCleanup ? new StoreCleaner(store, 50, 1000, true) : null;
+
+  return { store, storeCleaner: cleaner, logManager };
 }
 
-function createTCPServer(store, port, address) {
-  const server = net.createServer((socket) => {
-    socket.setNoDelay(true);
+async function createTCPServer(store, port, address) {
+  return new Promise((resolve, reject) => {
+    const server = net.createServer((socket) => {
+      socket.setNoDelay(true);
 
-    logger.debug(
-      "Client connected:",
-      socket.remoteAddress + ":" + socket.remotePort
-    );
+      logger.debug(
+        "Client connected: " + socket.remoteAddress + ":" + socket.remotePort
+      );
 
-    const outFn = (message) => {
-      let out;
-      if (message === undefined) {
-        out = "undefined";
-      } else {
-        out = JSON.stringify(message);
-      }
-      socket.write(`${out}\n`);
-    };
+      const outFn = (message) => {
+        let out;
+        if (message === undefined) {
+          out = "undefined";
+        } else {
+          out = JSON.stringify(message);
+        }
+        socket.write(`${out}\n`);
+      };
 
-    const outErrorFn = (error) => {
-      const source = error?.originalError;
-      const stack = JSON.stringify(error?.stack);
-      const extra = JSON.stringify(error?.extra);
-      socket.write(`error|||${error}|||${source}|||${stack}|||${extra}\n`);
-    };
+      const outErrorFn = (error) => {
+        const source = error?.originalError;
+        const stack = JSON.stringify(error?.stack);
+        const extra = JSON.stringify(error?.extra);
+        socket.write(`error|||${error}|||${source}|||${stack}|||${extra}\n`);
+      };
 
-    const processor = commandProcessorInit(store, outFn);
+      const processor = commandProcessorInit(store, outFn);
 
-    socket.on("data", (request) => {
-      try {
-        // logger.debug("new data: " + request.toString());
-        processor(request);
-      } catch (error) {
-        logger.error(error);
-        outErrorFn(error);
-      }
+      socket.on("data", (request) => {
+        try {
+          processor(request);
+        } catch (error) {
+          logger.error(error);
+          outErrorFn(error);
+        }
+      });
+
+      socket.on("end", () => {
+        logger.debug("client disconnected");
+      });
+
+      socket.write("connected\n");
+      // socket.pipe(socket);
     });
 
-    socket.on("end", () => {
-      logger.debug("Client disconnected");
+    server.listen(port, address, () => {
+      logger.debug(`TCP server running on ${address}:${port}`);
+      resolve(server);
     });
 
-    socket.write("connected\n");
-    // socket.pipe(socket);
+    server.on("error", (err) => {
+      logger.error("Server error:", err);
+      reject(err);
+    });
   });
-
-  server.listen(port, address, () => {
-    logger.debug(`TCP server running on ${address}:${port}`);
-  });
-
-  server.on("error", (err) => {
-    logger.error("Server error:", err.message);
-  });
-
-  return server;
 }
 
-function createServer({ port = 8080, address = "127.0.0.1" } = {}) {
-  const { store, storeCleaner } = createStore();
-  const socket = createTCPServer(store, port, address);
+async function createServer({
+  port = 8080,
+  address = "127.0.0.1",
+  withCleanup = false,
+  withPersistence = false,
+  persistencePath = null,
+  resetPersistence = false,
+} = {}) {
+  const { store, storeCleaner } = createStore(
+    withCleanup,
+    withPersistence || persistencePath,
+    persistencePath,
+    resetPersistence
+  );
+  const socket = await createTCPServer(store, port, address);
   const close = () => {
-    storeCleaner?.stopCleanupInterval();
+    logger.debug(`server close`);
+    storeCleaner?.stopCleanup();
     socket.close();
   };
 

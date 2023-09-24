@@ -7,7 +7,7 @@ const isTest = process.env.NODE_ENV === "test";
 // });
 
 const logger = createLogger({
-  level: "info",
+  level: process.env.LOG_SEVERITY || "info",
   silent: isTest,
   format: format.combine(
     format.timestamp({

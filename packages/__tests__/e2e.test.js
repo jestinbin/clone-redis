@@ -9,7 +9,7 @@ describe("SDK integrations tests", () => {
   let client3;
 
   beforeEach(async () => {
-    server = createServer();
+    server = await createServer();
     client1 = await createClient();
     client2 = await createClient();
     client3 = await createClient();

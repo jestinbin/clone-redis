@@ -2,20 +2,37 @@ import StoreValue from "./storeValue.js";
 import Operation from "./../operation.js";
 import config from "./../config.js";
 import CustomError from "../../commons/customError.js";
+import StoreLog from "./storeLog.js";
+import { deleteFile } from "../utils.js";
 
 class Store {
-  constructor() {
+  constructor({ logManager = null, resetPersistence = false } = {}) {
     this.data = new Map();
     this.expiryTimes = new Map();
+    this.logManager = logManager;
+    this.withPersistence = false;
+    this.resetPersistence = resetPersistence;
+
+    if (this.logManager) {
+      if (this.resetPersistence) {
+        this.logManager.deleteLogs();
+      } else {
+        this.logManager.compactLog();
+        this.logManager.restoreState(this);
+      }
+      this.withPersistence = true;
+    }
   }
 
-  _set(key, value, seconds = undefined) {
+  _set(key, value, seconds = undefined, dateNow = Date.now()) {
+    if (this.withPersistence) {
+      this.log("_set", [key, value, seconds]);
+    }
     const storeValue = new StoreValue(key, value);
     this.data.set(key, storeValue);
+    this.expiryTimes.delete(key);
     if (seconds !== undefined && seconds !== null) {
-      this.expire(key, seconds);
-    } else if (this.expiryTimes.has(key)) {
-      this.expiryTimes.delete(key);
+      this._expire(key, seconds, dateNow);
     }
     return storeValue;
   }
@@ -47,28 +64,40 @@ class Store {
   }
 
   delete(key) {
+    if (this.withPersistence) {
+      this.log("delete", [key]);
+    }
     this.data.delete(key);
     this.expiryTimes.delete(key);
     return true;
   }
 
-  expire(key, seconds) {
+  _expire(key, seconds, dateNow = Date.now()) {
     if (seconds === -1) {
       // remove expiration
       this.expiryTimes.delete(key);
       return;
     }
-    const expiryTime = Date.now() + seconds * 1000;
-    this.expiryTimes.set(key, expiryTime);
+    if (!this.isExpired(key)) {
+      const expiryTime = dateNow + seconds * 1000;
+      this.expiryTimes.set(key, expiryTime);
+    }
     return true;
   }
 
-  ttl(key) {
+  expire(key, seconds, dateNow = Date.now()) {
+    if (this.withPersistence) {
+      this.log("expire", [key, seconds]);
+    }
+    return this._expire(key, seconds, dateNow);
+  }
+
+  ttl(key, dateNow = Date.now()) {
     if (!this.expiryTimes.has(key)) {
       return -1; // no expiration
     }
 
-    const remainingTime = this.expiryTimes.get(key) - Date.now();
+    const remainingTime = this.expiryTimes.get(key) - dateNow;
     if (remainingTime <= 0) {
       this.delete(key);
       return -2; // key expired
@@ -83,6 +112,9 @@ class Store {
   }
 
   rpush(key, value) {
+    if (this.withPersistence) {
+      this.log("rpush", [key, value]);
+    }
     const storeValue = this._get(key);
     if (storeValue) {
       storeValue.value.push(value);
@@ -96,6 +128,9 @@ class Store {
   }
 
   blpop(key, outFn) {
+    if (this.withPersistence) {
+      this.log("blpop", [key]);
+    }
     let storeValue = this._get(key);
     if (storeValue) {
       if (storeValue.type !== "array") {
@@ -112,7 +147,9 @@ class Store {
       storeValue = this._set(key, []);
     }
     // client will wait for a new value
-    storeValue.queueListeners.push((el) => outFn(el));
+    if (outFn) {
+      storeValue.queueListeners.push((el) => outFn(el));
+    }
     return new Operation(config.OPERATIONS.WAITING_FOR_RESPONSE);
   }
 
@@ -139,10 +176,14 @@ class Store {
     return new Operation(config.OPERATIONS.NO_RESPONSE);
   }
 
-  isExpired(key) {
+  isExpired(key, dateNow = Date.now()) {
     const expiryTime = this.expiryTimes.get(key);
     if (!expiryTime) return false;
-    return expiryTime <= Date.now();
+    return expiryTime <= dateNow;
+  }
+
+  log(name, args) {
+    this.logManager?.save(new StoreLog(name, args));
   }
 }
 
