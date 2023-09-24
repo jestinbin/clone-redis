@@ -5,6 +5,12 @@ import CustomError from "../../commons/customError.js";
 import StoreLog from "./storeLog.js";
 import { deleteFile } from "../utils.js";
 
+/**
+ * Note: The methods prefixed with an underscore (_) are used to process
+ * internal information and return StoreValue. The equivalent methods without
+ * the underscore prefix are the ones called from external sources.
+ */
+
 class Store {
   constructor({ logManager = null, resetPersistence = false } = {}) {
     this.data = new Map();

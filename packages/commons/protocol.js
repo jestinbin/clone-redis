@@ -7,7 +7,7 @@ import Command from "./../commons/Command.js";
  *
  * schema: 	<name>(:<len_x>:<arg_x>)*
  * encoded: "set:19:{"a":"asd","b":123}:2:12"
- * decoded: { name: "set", arg1: {"a":"asd","b":123}, arg2: 12 }
+ * decoded: { name: "set", args: [{"a":"asd","b":123}, 12] }
  *
  */
 
