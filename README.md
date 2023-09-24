@@ -22,11 +22,11 @@ Note: `nc` (or `netcat`) can be used to test communication with the server via t
 
 - Simplified versions of some of the `basic commands`: get, set, delete
 - Allows the use of any value valid in `JSON`
-- Key `expiration` management: both passive and periodic/active
+- `Key expiration` management: both passive and periodic/active
 - A simple JSON-based `protocol` that can handle variable-length strings
 - Blocking commands for a basic `queue` implementation
-- `pubsub` commands
-- `Log-based` persistence
+- `pubsub` operation enabled by publish and subscribe commands
+- `Log-based persistence` with data restoration and log compaction procedures 
 
 
 ## Getting started
@@ -60,6 +60,7 @@ client.close();
 ## Examples
 
 - **sdk_and_server**: a getting started with the sdk and server
+- **types**: experiment with JSON data types
 - **pubsub**: simulate pubsub behaviour using the publish and subscribe commands (similar to redis but simplified)
 	- launch `./examples/queue/launcher.sh`: opens 4 terminal: server, publisher and 2 subscribers
 	- note: the launcher has only been tested on MacOS
@@ -83,4 +84,5 @@ client.close();
 - [ ] optimize the data restoration procedure by reading data as a stream instead of in a single pass
 - [ ] refine the store interface by hiding internal methods that start with _
 - [ ] use the compactLog feature during the execution (now it's used at the start)
+- [ ] management of multiple requests made by the client; for now, the client can handle only one request at a time, thus having to wait for the resolution of one request before making another
 
