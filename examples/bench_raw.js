@@ -1,8 +1,19 @@
 import net from "net";
+import { createServer } from "./../packages/server/index.js";
+
+/**
+ * REAL SERVER
+ * MOCKED CLIENT
+ */
 
 // TCP server configuration
 const SERVER_HOST = "127.0.0.1";
 const SERVER_PORT = 8080;
+
+const server = await createServer({
+  port: SERVER_PORT,
+  address: SERVER_HOST,
+});
 
 // Test duration and number of requests made
 const DURATION = 5; // in seconds
@@ -40,6 +51,7 @@ function endBench() {
   console.log(`Total duration: ${totalTime.toFixed(2)} seconds`);
   console.log(`Requests per second: ${avgRequestsPerSecond.toFixed(2)}`);
   client.end();
+  server.close();
 }
 
 // Main function
