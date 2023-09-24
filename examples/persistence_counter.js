@@ -1,6 +1,5 @@
-import { createClient } from "../../packages/sdk/index.js";
-import { createServer } from "../../packages/server/index.js";
-import sleep from "./utils/sleep.js";
+import { createClient } from "../packages/sdk/index.js";
+import { createServer } from "../packages/server/index.js";
 
 const server = await createServer({ withPersistence: true });
 const client = await createClient();
